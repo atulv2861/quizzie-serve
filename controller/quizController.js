@@ -1,10 +1,13 @@
 const Quiz = require("../model/quizSchema");
+const Assessment = require("../model/assessmentSchema");
 const mongoose = require('mongoose')
 
 const createQuiz = async (req, res) => {
   try {
-    const { quizName, quizType, quizQuestion } = req.body
-    if (!quizName || !quizType || !quizQuestion) {
+    console.log(req.body)
+    console.log("=================================7")
+    const { quizName, quizType, quizQuestions } = req.body
+    if (!quizName || !quizType || !quizQuestions) {
       return res.status(400).json({
         success: false,
         message: "Quiz details are not correct!"
@@ -16,6 +19,7 @@ const createQuiz = async (req, res) => {
     res.status(201).json({
       success: true,
       quiz: quizDetails,
+      isCreated: true,
       messages: "New quiz created!"
     })
   } catch (error) {
@@ -49,12 +53,12 @@ const getAllQuiz = async (req, res) => {
 const getQuizById = async (req, res) => {
   try {
     const quizId = req.params.quizId;
-    await Quiz.findByIdAndUpdate(
+    const quiz = await Quiz.findByIdAndUpdate(
       quizId,
-      { $inc: { impression: 1 } }, 
+      { $inc: { impression: 1 } },
       { new: true }
     ).exec();
-    const quiz = await Quiz.findById(quizId)
+
     if (!quiz) {
       return res.status(400).json({
         success: false,
@@ -98,7 +102,7 @@ const getQuizByUserId = async (req, res) => {
 
 const getTrendingQuiz = async (req, res) => {
   try {
-    const quizzes = await Quiz.find({ impression: { $gt: 10 } });
+    const quizzes = await Quiz.find({ userId: req.user._id, impression: { $gt: 10 } });
     if (!quizzes)
       return res.status(400).json({
         success: false,
@@ -117,9 +121,40 @@ const getTrendingQuiz = async (req, res) => {
   }
 }
 
-const deleteQuiz=async (req,res)=>{
+const getQuizDetails = async (req, res) => {
   try {
-    const quiz = await Quiz.findOneAndDelete(req.params.quizId);
+    const quizDetails = await Quiz.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(req.user._id), impression: { $gt: 10 } } },
+      {
+        $group: {
+          _id: 1,
+          totalQuizzes: { $sum: 1 },
+          totalImpressions: { $sum: "$impression" },
+          totalQuestions: { $sum: { $size: "$quizQuestions" } }
+        }
+      }
+    ]);
+    if (!quizDetails)
+      return res.status(400).json({
+        success: false,
+        message: "Quiz details are not found!"
+      });
+    res.status(201).json({
+      success: true,
+      quizDetails: quizDetails,
+      messages: "Get quiz details!"
+    })
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
+
+const deleteQuiz = async (req, res) => {
+  try {
+    const quiz = await Quiz.findByIdAndDelete({ _id: req.params.quizId });
     if (!quiz)
       return res.status(400).json({
         success: false,
@@ -138,6 +173,108 @@ const deleteQuiz=async (req,res)=>{
   }
 }
 
+const assessment = async (req, res) => {
+  try {
+    const { quizId, quizType, assessment } = req.body;
+    console.log(quizId, quizType, assessment)
+    if (quizType === "Q&A") {
+      for (let question of assessment) {
+        const { _id, isCorrect } = question;
+
+        let update = {
+          $inc: {
+            attemptedPeople: 1,
+            correctAnswered: isCorrect ? 1 : 0,
+            incorrectAnswered: !isCorrect ? 1 : 0
+          }
+        };
+
+        let options = {
+          upsert: true,
+          new: true
+        };
+
+        await Assessment.findOneAndUpdate(
+          { quizId, questionId: _id, quizType },
+          update,
+          options
+        );
+      }
+    }
+
+    if (quizType === "Poll_Type") {
+      for (let question of assessment) {
+        const { _id, option } = question;
+        let update = {
+          $inc: {
+            option1: option && option === 1 ? 1 : 0,
+            option2: option && option === 2 ? 1 : 0,
+            option3: option && option === 3 ? 1 : 0,
+            option4: option && option === 4 ? 1 : 0,
+          }
+        };
+
+        let options = {
+          upsert: true,
+          new: true
+        };
+
+        await Assessment.findOneAndUpdate(
+          { quizId, questionId: _id, quizType },
+          update,
+          options
+        );
+      }
+    }
+    res.status(201).json({
+      success: true,
+      messages: "Assessment updated successfully!"
+    })
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
+
+const getAssessmentData = async (req, res) => {
+  try {
+    const { quizType, quizId } = req.body;
+    console.log(req.body)
+    console.log("==============================245")
+    let fieldsToSelect;
+    if (quizType === 'Q&A') {
+      fieldsToSelect = 'questionId quizType attemptedPeople correctAnswered incorrectAnswered';
+    } else if (quizType === 'Poll_Type') {
+      fieldsToSelect = 'questionId quizType option1 option2 option3 option4';
+    } else {
+      throw new Error('Invalid quiz type');
+    }
+
+    if(!quizType || !quizId){
+      return res.status(400).json({
+        success: false,
+        message: "Something went wrong!"
+      });
+    }
+    const assessmentData=await Assessment.find({
+        quizId:new mongoose.Types.ObjectId(quizId), 
+        quizType:quizType}
+      ).select(fieldsToSelect);
+
+      res.status(201).json({
+        success: true,
+        assessmentData:assessmentData,
+        messages: "Get assessment details!"
+      })
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
 
 module.exports = {
   createQuiz,
@@ -145,5 +282,8 @@ module.exports = {
   getQuizById,
   getQuizByUserId,
   getTrendingQuiz,
-  deleteQuiz
+  deleteQuiz,
+  getQuizDetails,
+  assessment,
+  getAssessmentData
 };

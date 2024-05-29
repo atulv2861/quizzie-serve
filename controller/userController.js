@@ -37,8 +37,7 @@ const registerUser = async (req, res) => {
         );          
         res.status(201).json({
             success: true,
-            user: ussrr,
-            accessToken
+            message:"User registered successfully!"            
         });
     } catch (error) {        
         res.status(400).json({
@@ -61,7 +60,7 @@ const loginUser = async (req, res) => {
             })
         }
         // create a entry in data base
-        const user = await User.findOne({ email: email }); 
+        const user = await User.findOne({ email: email }).select("+password"); 
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -74,7 +73,7 @@ const loginUser = async (req, res) => {
             user.password
           );
           if (!passwordMatch) {
-            return response
+            return res
               .status(401)
               .json({ msg: "Password is incorrect" });
           }
@@ -94,7 +93,8 @@ const loginUser = async (req, res) => {
             user: ussrr,
             accessToken
         })
-    } catch (error) {       
+    } catch (error) {  
+        console.log(error.stack)     
         res.status(400).json({
             success: false,
             message: error.message
@@ -103,7 +103,7 @@ const loginUser = async (req, res) => {
 }
 const logoutUser = async (req, res) => {
     try {
-        const _id = req.params.userId;
+        const _id = req.user._id;
         const user = await User.findById(_id);
         if (!user) {
             return res.status(404).json({
@@ -116,6 +116,7 @@ const logoutUser = async (req, res) => {
         await user.save()
         res.status(200).json({
             success: true,
+            isLogout:true,
             message:"User logout successfully!"
         })
     } catch (error) {     
@@ -130,7 +131,7 @@ const getNewAccessToken=async(req,res)=>{
     try{        
         const refreshToken=req.body.refreshToken;
         let accessToken=null;        
-        const {_id} = jwt.verify(refreshToken,process.env.JWT_REFRESH_TOKEN_KEY);           
+        const {_id} = jwt.verify(refreshToken,process.env.JWT_REFRESH_TOKEN_EXIPREAT);           
         if(_id){
           const user = await User.findById(_id);          
           if(!user){

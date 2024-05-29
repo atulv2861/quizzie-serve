@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const accessTokenExpTime="30m";
-const refreshTokenExpTime="1d";
+const accessTokenExpTime=process.env.JWT_ACCESS_TOKEN_EXIPREAT;
+const refreshTokenExpTime=process.env.JWT_REFRESH_TOKEN_EXIPREAT;
 const getRefereshToken=async(id)=>{
     const refereshToken = jwt.sign(
         {_id:id},

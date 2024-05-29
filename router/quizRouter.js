@@ -1,15 +1,16 @@
 const express = require('express');
 const router= express.Router();
-const app= express();
-const { createQuiz, getAllQuiz, getQuizById, getQuizByUserId, getTrendingQuiz, deleteQuiz } = require('../controller/quizController');
-const { isAuth } = require('../middleware/authMiddleware');
+const { createQuiz, assessment,getAssessmentData, getAllQuiz, getQuizById, getQuizByUserId, getTrendingQuiz, deleteQuiz, getQuizDetails } =  require('../controller/quizController');
+const  {isAuth}  = require('../middleware/authMiddleware');
 
 // Quizzes
-// router.post("/createQuiz",isAuth,createQuiz);
-// router.get("/getAllQuizzes",isAuth,getAllQuiz);
-// router.get("/getQuizById/:quizId",getQuizById);
-// router.get("/getQuizByUserId", isAuth,getQuizByUserId);
-// router.get("/getTrendingQuizzes",isAuth,getTrendingQuiz);
-// router.delete("/deleteQuizById",isAuth,deleteQuiz);
-
+router.route("/createQuiz").post(isAuth,createQuiz);
+router.get("/getAllQuizzes",isAuth,getAllQuiz);
+router.get("/getQuizById/:quizId",getQuizById);
+router.get("/getQuizByUserId/:userId", isAuth,getQuizByUserId);
+router.get("/getTrendingQuizzes",isAuth,getTrendingQuiz);
+router.delete("/deleteQuizById/:quizId",isAuth,deleteQuiz);
+router.get("/getQuizDetails",isAuth, getQuizDetails);
+router.post("/assessment", assessment);
+router.post("/getAssessmentDetails",getAssessmentData);
 module.exports=router;

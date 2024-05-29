@@ -6,8 +6,7 @@ async function dbConnection(){
          console.log("=======Data base connected successfulyy=========")
      } catch (error) {       
         console.log(error)
-        setTimeout(
-            dbConnection,5000)
+        setTimeout(dbConnection,5000)
      }
 }
 module.exports = dbConnection

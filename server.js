@@ -1,5 +1,6 @@
 //config set up
-require('dotenv').config({path:"./config/config.env"})
+// require('dotenv').config({path:"./config/config.env"})
+require('dotenv').config();
 const app = require('./app');
 const dbConnection = require('./connection/db');
 

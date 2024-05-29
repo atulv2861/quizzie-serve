@@ -11,6 +11,7 @@ const isAuth = async (req, res, next) => {
             })
         }
         const token = JSON.parse(authorization.split(" ")[1]);
+       
         const { _id } = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_KEY);
         if (!_id)
             return res.status(401).json({
@@ -33,4 +34,4 @@ const isAuth = async (req, res, next) => {
         })
     }
 }
-module.exports = isAuth;
+module.exports = {isAuth};
