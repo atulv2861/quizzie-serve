@@ -5,6 +5,7 @@ const passwordHash =require("password-hash");
 const registerUser = async (req, res) => {
     try {
         const { email, name, password } = req.body;
+        console.log(email, name, password)
         if (!email || !name || !password) {
             return res.status(400).json({
                 success: false,
@@ -25,21 +26,23 @@ const registerUser = async (req, res) => {
         newUser.password=hashPassword;
         const user = await newUser.save();
 
-        const accessToken = await getAccessToken(user._id);
-        const refreshToken = await getRefereshToken(user._id);
-        let ussrr = await User.findOneAndUpdate(
-            { _id: user._id.toString() },
-            {
-                refreshToken: refreshToken,
-                isLoggedIn: true,
-            },
-            { new: true }
-        );          
+        // const accessToken = await getAccessToken(user._id);
+        // const refreshToken = await getRefereshToken(user._id);
+        // let ussrr = await User.findOneAndUpdate(
+        //     { _id: user._id.toString() },
+        //     {
+        //         refreshToken: refreshToken,
+        //         isLoggedIn: true,
+        //     },
+        //     { new: true }
+        // );          
         res.status(201).json({
-            success: true,
+            success: true,  
+            user:user,          
             message:"User registered successfully!"            
         });
-    } catch (error) {        
+    } catch (error) {     
+        console.log(error)   
         res.status(400).json({
             success: false,
             message: error.message
@@ -52,7 +55,8 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
 
-        const { email, password } = req.body;               
+        const { email, password } = req.body;    
+        console.log(email, password)           
         if (!email || !password) {
             return res.status(404).json({
                 success: false,
