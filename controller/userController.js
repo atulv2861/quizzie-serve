@@ -135,7 +135,11 @@ const getNewAccessToken=async(req,res)=>{
     try{        
         const refreshToken=req.body.refreshToken;
         let accessToken=null;        
-        const {_id} = jwt.verify(refreshToken,process.env.JWT_REFRESH_TOKEN_EXIPREAT);           
+        console.log(refreshToken)
+        console.log("139=================",process.env.JWT_REFRESH_TOKEN_KEY)
+        const {_id} = jwt.verify(refreshToken,process.env.JWT_REFRESH_TOKEN_KEY); 
+        console.log(_id)   
+        console.log("=================")       
         if(_id){
           const user = await User.findById(_id);          
           if(!user){

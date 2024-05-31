@@ -11,7 +11,7 @@ const isAuth = async (req, res, next) => {
             })
         }
         const token = JSON.parse(authorization.split(" ")[1]);
-       
+       console.log(token)
         const { _id } = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_KEY);
         if (!_id)
             return res.status(401).json({
@@ -28,7 +28,8 @@ const isAuth = async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        res.status(400).json({
+        console.log(error)
+        res.status(401).json({
             success: false,
             message: error.message
         })

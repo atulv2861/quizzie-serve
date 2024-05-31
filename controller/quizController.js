@@ -18,8 +18,7 @@ const createQuiz = async (req, res) => {
     const quizDetails = await newQuiz.save();
     res.status(201).json({
       success: true,
-      quiz: quizDetails,
-      isCreated: true,
+      quiz: quizDetails,     
       messages: "New quiz created!"
     })
   } catch (error) {    
