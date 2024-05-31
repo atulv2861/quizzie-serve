@@ -18,7 +18,7 @@ const quizSchema = new mongoose.Schema({
             },
             options: [],
             answer:{
-                type:String
+                type:mongoose.Schema.Types.Mixed,
             },
             timer:{
                 type:Number

@@ -22,7 +22,7 @@ const createQuiz = async (req, res) => {
       isCreated: true,
       messages: "New quiz created!"
     })
-  } catch (error) {
+  } catch (error) {    
     res.status(400).json({
       success: false,
       message: error.message
