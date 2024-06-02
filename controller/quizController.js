@@ -3,9 +3,7 @@ const Assessment = require("../model/assessmentSchema");
 const mongoose = require('mongoose')
 
 const createQuiz = async (req, res) => {
-  try {
-    console.log(req.body)
-    console.log("=================================7")
+  try {  
     const { quizName, quizType, quizQuestions } = req.body
     if (!quizName || !quizType || !quizQuestions) {
       return res.status(400).json({
@@ -174,9 +172,9 @@ const deleteQuiz = async (req, res) => {
 
 const assessment = async (req, res) => {
   try {
-    const { quizId, quizType, assessment } = req.body;
-    console.log(quizId, quizType, assessment)
+    const { quizId, quizType, assessment } = req.body;   
     if (quizType === "Q&A") {
+      console.log("===========================177")
       for (let question of assessment) {
         const { _id, isCorrect } = question;
 
@@ -239,9 +237,7 @@ const assessment = async (req, res) => {
 
 const getAssessmentData = async (req, res) => {
   try {
-    const { quizType, quizId } = req.body;
-    console.log(req.body)
-    console.log("==============================245")
+    const { quizType, quizId } = req.body;  
     let fieldsToSelect;
     if (quizType === 'Q&A') {
       fieldsToSelect = 'questionId quizType attemptedPeople correctAnswered incorrectAnswered';

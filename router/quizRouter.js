@@ -12,5 +12,5 @@ router.get("/getTrendingQuizzes",isAuth,getTrendingQuiz);
 router.delete("/deleteQuizById/:quizId",isAuth,deleteQuiz);
 router.get("/getQuizDetails",isAuth, getQuizDetails);
 router.post("/assessment", assessment);
-router.post("/getAssessmentDetails",getAssessmentData);
+router.post("/getAssessmentDetails",isAuth,getAssessmentData);
 module.exports=router;

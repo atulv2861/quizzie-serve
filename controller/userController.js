@@ -4,8 +4,7 @@ const jwt = require('jsonwebtoken')
 const passwordHash =require("password-hash");
 const registerUser = async (req, res) => {
     try {
-        const { email, name, password } = req.body;
-        console.log(email, name, password)
+        const { email, name, password } = req.body;       
         if (!email || !name || !password) {
             return res.status(400).json({
                 success: false,
@@ -15,7 +14,7 @@ const registerUser = async (req, res) => {
 
         const userDetails=await User.find({email:email});
         if(userDetails.length){
-            return res.status(400).json({
+            return res.status(409).json({
                 success: false,
                 message: "User already exist!"
             })
@@ -25,24 +24,11 @@ const registerUser = async (req, res) => {
         newUser.isLoggedIn = false;
         newUser.password=hashPassword;
         const user = await newUser.save();
-
-        // const accessToken = await getAccessToken(user._id);
-        // const refreshToken = await getRefereshToken(user._id);
-        // let ussrr = await User.findOneAndUpdate(
-        //     { _id: user._id.toString() },
-        //     {
-        //         refreshToken: refreshToken,
-        //         isLoggedIn: true,
-        //     },
-        //     { new: true }
-        // );          
         res.status(201).json({
-            success: true,  
-            user:user,          
+            success: true,                   
             message:"User registered successfully!"            
         });
-    } catch (error) {     
-        console.log(error)   
+    } catch (error) {           
         res.status(400).json({
             success: false,
             message: error.message
@@ -55,8 +41,7 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
 
-        const { email, password } = req.body;    
-        console.log(email, password)           
+        const { email, password } = req.body;                  
         if (!email || !password) {
             return res.status(404).json({
                 success: false,
@@ -78,8 +63,11 @@ const loginUser = async (req, res) => {
           );
           if (!passwordMatch) {
             return res
-              .status(401)
-              .json({ msg: "Password is incorrect" });
+              .status(404)
+              .json({ 
+                success: false,
+                message: "Password is incorrect" 
+            });
           }
         // generate access and refres token
         const accessToken = await getAccessToken(user._id);
@@ -92,13 +80,12 @@ const loginUser = async (req, res) => {
             },
             { new: true }
         ); 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             user: ussrr,
             accessToken
         })
-    } catch (error) {  
-        console.log(error.stack)     
+    } catch (error) {             
         res.status(400).json({
             success: false,
             message: error.message
@@ -135,11 +122,7 @@ const getNewAccessToken=async(req,res)=>{
     try{        
         const refreshToken=req.body.refreshToken;
         let accessToken=null;        
-        console.log(refreshToken)
-        console.log("139=================",process.env.JWT_REFRESH_TOKEN_KEY)
-        const {_id} = jwt.verify(refreshToken,process.env.JWT_REFRESH_TOKEN_KEY); 
-        console.log(_id)   
-        console.log("=================")       
+        const {_id} = jwt.verify(refreshToken,process.env.JWT_REFRESH_TOKEN_KEY);             
         if(_id){
           const user = await User.findById(_id);          
           if(!user){
