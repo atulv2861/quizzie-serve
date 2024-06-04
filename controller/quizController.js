@@ -271,6 +271,30 @@ const getAssessmentData = async (req, res) => {
   }
 }
 
+const updateQuiz=async(req,res)=>{
+  try{
+    const {quizId} = req.params;    
+    console.log(quizId)
+    console.log(req.body)    
+    const updatedQuiz = await Quiz.findOneAndUpdate({_id:new mongoose.Types.ObjectId(quizId)},{...req.body});
+    if (!updatedQuiz)
+      return res.status(400).json({
+        success: false,
+        message: "Something went wrong!"
+      });
+    res.status(201).json({
+      success: true,
+      updatedQuiz: updatedQuiz,
+      messages: "Quiz is updated successfully!"
+    })
+  }catch(error){
+    res.status(400).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
+
 module.exports = {
   createQuiz,
   getAllQuiz,
@@ -280,5 +304,6 @@ module.exports = {
   deleteQuiz,
   getQuizDetails,
   assessment,
-  getAssessmentData
+  getAssessmentData,
+  updateQuiz
 };

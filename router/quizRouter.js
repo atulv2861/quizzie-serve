@@ -1,6 +1,6 @@
 const express = require('express');
 const router= express.Router();
-const { createQuiz, assessment,getAssessmentData, getAllQuiz, getQuizById, getQuizByUserId, getTrendingQuiz, deleteQuiz, getQuizDetails } =  require('../controller/quizController');
+const { createQuiz, assessment,getAssessmentData, getAllQuiz, getQuizById, getQuizByUserId, getTrendingQuiz, deleteQuiz, getQuizDetails, updateQuiz } =  require('../controller/quizController');
 const  {isAuth}  = require('../middleware/authMiddleware');
 
 // Quizzes
@@ -13,4 +13,5 @@ router.delete("/deleteQuizById/:quizId",isAuth,deleteQuiz);
 router.get("/getQuizDetails",isAuth, getQuizDetails);
 router.post("/assessment", assessment);
 router.post("/getAssessmentDetails",isAuth,getAssessmentData);
+router.post("/updateQuiz/:quizId",isAuth,updateQuiz);
 module.exports=router;
